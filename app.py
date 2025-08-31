@@ -5,8 +5,9 @@ from utils import get_pairs
 st.set_page_config(page_title="Early Token Dashboard", page_icon="🚀")
 st.title("🚀 Early Token Discovery Dashboard")
 
-# ✅ Testbesked for at sikre, at appen kører
-st.write("✅ Appen er startet og kører")
+# st.write("✅ Appen er startet")
+tokens = get_pairs()
+st.write(tokens)
 
 # 🔄 Hent data
 try:
