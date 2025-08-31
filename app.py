@@ -1,38 +1,28 @@
+# utils/get_parts.py
 import requests
-import streamlit as st
 
-# 🔗 API-endpoint fra DEX Screener
-url = "https://api.dexscreener.com/latest/dex/pairs"
+DEX_URL = "https://api.dexscreener.com/latest/dex/pairs"
 
-# 🧠 Funktion til at hente og filtrere relevante par
 def get_pairs():
-    response = requests.get(url)
-    data = response.json()
-    pairs = [
-        {
-            "pair": pair["pairAddress"],
-            "token0": pair["token0"]["symbol"],
-            "token1": pair["token1"]["symbol"],
-            "liquidity": pair["liquidity"]["usd"]
-        }
-        for pair in data["pairs"]
-        if pair["token0"]["symbol"] == "TAYLOR" or
-           pair["token1"]["symbol"] == "TAYLOR"
-    ]
+    resp = requests.get(
+        DEX_URL,
+        headers={"Accept": "application/json", "User-Agent": "early-token-dashboard/1.0"},
+        timeout=15,
+    )
+    resp.raise_for_status()
+
+    try:
+        data = resp.json()
+    except ValueError:
+        # Serveren returnerede ikke JSON (fx HTML-fejlside/rate limit)
+        raise RuntimeError("API returnerede ikke gyldig JSON. Prøv igen om lidt.")
+
+    pairs = []
+    for pair in data.get("pairs", []):
+        pairs.append({
+            "pair": pair.get("pairAddress"),
+            "token0": (pair.get("token0") or {}).get("symbol"),
+            "token1": (pair.get("token1") or {}).get("symbol"),
+            "liquidity": (pair.get("liquidity") or {}).get("usd", 0),
+        })
     return pairs
-
-# 🎨 Streamlit UI
-st.set_page_config(page_title="Early Token Dashboard", page_icon="🚀")
-st.title("🚀 Early Token Discovery Dashboard")
-st.markdown("Fokuserer på par med token-symbol **TAYLOR** og likviditet over $1000")
-
-tokens = get_pairs()
-
-if tokens:
-    for token in tokens:
-        st.subheader(f"{token['token0']} / {token['token1']}")
-        st.write(f"💧 Likviditet: ${token['liquidity']}")
-        st.write(f"🔗 Pair Address: `{token['pair']}`")
-        st.markdown("---")
-else:
-    st.warning("Ingen relevante par fundet. Prøv igen senere.")
