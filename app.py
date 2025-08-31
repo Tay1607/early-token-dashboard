@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+from utils import get_pairs
 
 # 🖥️ Grundopsætning af siden
 st.set_page_config(page_title="Early Token Dashboard", page_icon="🚀")
