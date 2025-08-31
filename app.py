@@ -1,6 +1,5 @@
-import streamlit as st
-from utils import get_pairs
-import time
+from utils.Tay1607 import get_pairs
+
 
 st.set_page_config(page_title="Early Token Dashboard", page_icon="🚀")
 st.title("🚀 Early Token Discovery Dashboard")
