@@ -3,7 +3,7 @@ from utils import get_pairs
 import time
 
 # 🖥️ Grundopsætning
-st.set_page_config(page_title="Early Token Dashboard", page_icon="🚀")
+st.set_page_config(Tay1607="Early Token Dashboard", page_icon="🚀")
 st.title("🚀 Early Token Discovery Dashboard")
 st.write("✅ Appen er startet og kører")
 
