@@ -1,28 +1,31 @@
-# utils/get_parts.py
-import requests
+import streamlit as st
+from utils.get_parts import get_pairs
 
-DEX_URL = "https://api.dexscreener.com/latest/dex/pairs"
+# 🖥️ Grundopsætning
+st.set_page_config(page_title="Early Token Dashboard", page_icon="🚀")
+st.title("🚀 Early Token Discovery Dashboard")
 
-def get_pairs():
-    resp = requests.get(
-        DEX_URL,
-        headers={"Accept": "application/json", "User-Agent": "early-token-dashboard/1.0"},
-        timeout=15,
-    )
-    resp.raise_for_status()
+# ✅ Testbesked for at sikre, at appen kører
+st.write("✅ Appen er startet og kører")
 
-    try:
-        data = resp.json()
-    except ValueError:
-        # Serveren returnerede ikke JSON (fx HTML-fejlside/rate limit)
-        raise RuntimeError("API returnerede ikke gyldig JSON. Prøv igen om lidt.")
+# 🔄 Hent data
+try:
+    tokens = get_pairs()
+except Exception as e:
+    st.error(f"Kunne ikke hente data: {e}")
+    st.stop()
 
-    pairs = []
-    for pair in data.get("pairs", []):
-        pairs.append({
-            "pair": pair.get("pairAddress"),
-            "token0": (pair.get("token0") or {}).get("symbol"),
-            "token1": (pair.get("token1") or {}).get("symbol"),
-            "liquidity": (pair.get("liquidity") or {}).get("usd", 0),
-        })
-    return pairs
+# 🐞 Debug: Vis rå data fra API
+st.subheader("Debug: Rå data fra API")
+st.write(tokens)
+
+# 📊 Vis tokens eller fallback
+if tokens:
+    st.subheader("📈 Fundne tokens")
+    for token in tokens:
+        st.markdown(f"### {token['token0']} / {token['token1']}")
+        st.write(f"💧 Likviditet: ${token['liquidity']}")
+        st.write(f"🔗 Pair Address: `{token['pair']}`")
+        st.markdown("---")
+else:
+    st.warning("Ingen tokens fundet lige nu. Prøv igen om lidt.")
