@@ -1,2 +1,18 @@
 get_parts.py
 utils.py
+import requests
+
+def get_pairs():
+    url = "https://api.dexscreener.com/latest/dex/pairs"
+    resp = requests.get(url, timeout=15)
+    resp.raise_for_status()
+    data = resp.json()
+    pairs = []
+    for pair in data.get("pairs", []):
+        pairs.append({
+            "pair": pair.get("pairAddress"),
+            "token0": (pair.get("token0") or {}).get("symbol"),
+            "token1": (pair.get("token1") or {}).get("symbol"),
+            "liquidity": (pair.get("liquidity") or {}).get("usd", 0)
+        })
+    return pairs
