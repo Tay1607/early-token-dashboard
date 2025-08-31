@@ -1,37 +1,24 @@
 import streamlit as st
-import requests
 from utils import get_pairs
+import time
 
-# 🖥️ Grundopsætning af siden
+# 🖥️ Grundopsætning
 st.set_page_config(page_title="Early Token Dashboard", page_icon="🚀")
 st.title("🚀 Early Token Discovery Dashboard")
 st.write("✅ Appen er startet og kører")
 
-# 🔄 Funktion til at hente ALLE tokens fra DEX Screener
-def get_pairs():
-    url = "https://api.dexscreener.com/latest/dex/pairs"
-    try:
-        resp = requests.get(url, timeout=15)
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as e:
-        st.error(f"Fejl ved hentning af data: {e}")
-        return []
+# 🔄 Hent data (med session state, så vi ikke kalder API'et hele tiden)
+if 'pairs' not in st.session_state:
+    st.session_state.pairs = get_pairs()
 
-    pairs = []
-    for pair in data.get("pairs", []):
-        pairs.append({
-            "pair": pair.get("pairAddress"),
-            "token0": (pair.get("token0") or {}).get("symbol"),
-            "token1": (pair.get("token1") or {}).get("symbol"),
-            "liquidity": (pair.get("liquidity") or {}).get("usd", 0)
-        })
-    return pairs
+if st.button('🔄 Opdater data'):
+    st.session_state.pairs = get_pairs()
 
-# 🔄 Hent data
-tokens = get_pairs()
+st.write("Data sidst opdateret: " + time.strftime('%Y-%m-%d %H:%M:%S'))
 
-# 🐞 Debug: vis rå API-data og antal tokens
+tokens = st.session_state.pairs
+
+# 🐞 Debug: vis rå data og antal tokens
 st.subheader("Debug: rå API-data")
 st.write(tokens)
 st.write(f"Antal tokens fundet: {len(tokens)}")
@@ -39,7 +26,7 @@ st.write(f"Antal tokens fundet: {len(tokens)}")
 # 📊 Vis tokens eller fallback
 if tokens:
     st.subheader("📈 Fundne tokens")
-    for token in tokens[:20]:  # viser kun de første 20 for hastighed
+    for token in tokens[:20]:  # viser kun de første 20
         st.markdown(f"### {token['token0']} / {token['token1']}")
         st.write(f"💧 Likviditet: ${token['liquidity']}")
         st.write(f"🔗 Pair Address: `{token['pair']}`")
