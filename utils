@@ -1,5 +1,3 @@
-get_parts.py
-utils.py
 import requests
 
 def get_pairs():
