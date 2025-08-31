@@ -1,4 +1,4 @@
-import requests
+mport requests
 
 def get_pairs():
     url = "https://api.dexscreener.com/latest/dex/pairs"
