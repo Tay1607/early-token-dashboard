@@ -10,7 +10,6 @@ def get_pairs():
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
-        # Returnér tom liste ved fejl
         print(f"Fejl ved hentning af data: {e}")
         return []
 
